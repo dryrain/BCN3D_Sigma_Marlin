@@ -56,6 +56,8 @@
 
 //static Genie genie;
 Genie genie;
+//#define RESETLINE 23
+//#define RESETLINE 47
 //void myGenieEventHandler();
 //-------------------------
 
@@ -555,9 +557,7 @@ void servo_init()
 void setup()
 {
 	
-	#if MOTHERBOARD==15 //BCNElectronics v1
-	
-	//enable 24V
+	#if MOTHERBOARD==15 //BCNElectronics v1 enable 24V
 	pinMode(RELAY, OUTPUT);
 	digitalWrite(RELAY, LOW);
 	delay(500);
