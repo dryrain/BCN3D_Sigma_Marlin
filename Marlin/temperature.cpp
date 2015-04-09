@@ -805,16 +805,8 @@ void tp_init()
   #endif  
   #if defined(FAN_PIN) && (FAN_PIN > -1) 
     SET_OUTPUT(FAN_PIN);
-	#if MOTHERBOARD ==15
-		SET_OUTPUT(FAN_PIN);
-	#endif
     #ifdef FAST_PWM_FAN
-    setPwmFrequency(FAN_PIN, 1);
-	//Rapduch
-	#if MOTHERBOARD == 15
-	setPwmFrequency(FAN2_PIN,1); // No prescaling. Pwm frequency = F_CPU/256/8
-#endif
-	
+    setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
     #ifdef FAN_SOFT_PWM
     soft_pwm_fan = fanSpeedSoftPwm / 2;
@@ -1242,17 +1234,7 @@ ISR(TIMER0_COMPB_vect)
     #endif
     #ifdef FAN_SOFT_PWM
     soft_pwm_fan = fanSpeedSoftPwm / 2;
-    if(soft_pwm_fan > 0){
-		WRITE(FAN_PIN,1); 
-		#if MOTHERBOARD ==15
-			WRITE(FAN2_PIN,1); 
-		#endif
-		}else{
-			WRITE(FAN_PIN,0);
-		#if MOTHERBOARD ==15
-			WRITE(FAN2_PIN,0);
-		#endif
-		} 
+    if(soft_pwm_fan > 0) WRITE(FAN_PIN,1); else WRITE(FAN_PIN,0);
     #endif
   }
   if(soft_pwm_0 < pwm_count) { 
@@ -1271,11 +1253,7 @@ ISR(TIMER0_COMPB_vect)
   if(soft_pwm_b < pwm_count) WRITE(HEATER_BED_PIN,0);
   #endif
   #ifdef FAN_SOFT_PWM
-  if(soft_pwm_fan < pwm_count){
-	  //Rapduch
-	  WRITE(FAN_PIN,0);
-	  WRITE(FAN2_PIN,0);
-	  } 
+  if(soft_pwm_fan < pwm_count) WRITE(FAN_PIN,0);
   #endif
   
   pwm_count += (1 << SOFT_PWM_SCALE);
