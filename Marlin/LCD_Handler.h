@@ -1175,7 +1175,7 @@ void myGenieEventHandler(void)
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT10)
 			{
 				float calculus = extruder_offset[X_AXIS][1] - 0.5;
-				Serial.print("Calculus:  ");
+				//Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
