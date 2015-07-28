@@ -299,4 +299,5 @@ extern bool flag_continue_calib;
 //extern int language;
 //extern const char idiom[50][50]; 
 //extern void updateLanguage();
+extern bool change_full_filament;
 #endif

@@ -72,26 +72,30 @@
 #define BUTTON_Z_CAL_WIZARD		68
 
 //Print Settings Buttons
-#define BUTTON_PRINT_SETTINGS			16
-#define BUTTON_PRINT_SET_BACK			82
-#define BUTTON_PRINT_SET_SPEED_UP		73
-#define BUTTON_PRINT_SET_SPEED_DOWN		81
-#define BUTTON_PRINT_SET_NOZZ1_UP		23
-#define BUTTON_PRINT_SET_NOZZ1_DOWN		78
-#define BUTTON_PRINT_SET_NOZZ2_UP		25
-#define BUTTON_PRINT_SET_NOZZ2_DOWN		80
-#define BUTTON_PRINT_SET_BED_UP			24
-#define BUTTON_PRINT_SET_BED_DOWN		79
+#define BUTTON_PRINT_SETTINGS				16
+#define BUTTON_PRINT_SET_BACK				82
+#define BUTTON_PRINT_SET_SPEED_UP			73
+#define BUTTON_PRINT_SET_SPEED_DOWN			81
+#define BUTTON_PRINT_SET_NOZZ1_UP			23
+#define BUTTON_PRINT_SET_NOZZ1_DOWN			78
+#define BUTTON_PRINT_SET_NOZZ2_UP			25
+#define BUTTON_PRINT_SET_NOZZ2_DOWN			80
+#define BUTTON_PRINT_SET_BED_UP				24
+#define BUTTON_PRINT_SET_BED_DOWN			79
 
 //Print Settings Buttons_ NEW FORM
-#define BUTTON_INCREASE_X3				120 
-#define BUTTON_INCREASE					70
-#define BUTTON_DECREASE					121
-#define BUTTON_DECREASE_X3				122
-#define BUTTON_LEFT_EXTRUDER			123
-#define BUTTON_BED						124
-#define BUTTON_RIGHT_EXTRUDER			125
-#define BUTTON_SPPED					126
+#define BUTTON_INCREASE_X3					120
+#define BUTTON_INCREASE						70
+#define BUTTON_DECREASE						121
+#define BUTTON_DECREASE_X3					122
+#define BUTTON_LEFT_EXTRUDER				123
+#define BUTTON_BED							124
+#define BUTTON_RIGHT_EXTRUDER				125
+#define BUTTON_SPPED						126
+
+//Change filament in pause
+#define BUTTON_CHANGE_LEFT					152
+#define BUTTON_CHANGE_RIGHT					153
 
 
 //Preheat Settings Buttons
@@ -303,6 +307,7 @@
 #define FORM_CALIB_X				39
 #define FORM_CALIB_Y				42
 #define FORM_FULL_CAL				40
+#define FORM_CHANGE_FILAMENT			43
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS

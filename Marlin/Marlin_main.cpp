@@ -1108,6 +1108,7 @@ void get_command()
 			enquecommand_P(((PSTR("G69"))));
 			flag_pause = false;
 			Serial.println("pause detected");
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_CHANGE_FILAMENT,0);
 		}
 		
 		//****************************************************/
@@ -4412,14 +4413,14 @@ void process_commands()
 					#if defined(FAN_PIN) && FAN_PIN > -1
 					case 106: //M106 Fan On
 					if (code_seen('S')){
-					fanSpeed=constrain(code_value(),0,255);
+						fanSpeed=constrain(code_value(),0,255);
 					}
 					else {
-					fanSpeed=255;
+						fanSpeed=255;
 					}
 					break;
 					case 107: //M107 Fan Off
-					fanSpeed = 0;
+						fanSpeed = 0;
 					break;
 					#endif //FAN_PIN
 					#ifdef BARICUDA

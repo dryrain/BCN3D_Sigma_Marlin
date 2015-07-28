@@ -29,6 +29,9 @@ int print_setting_tool = 2;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
 
+bool change_full_filament = false;
+
+
 //Created by Jordi Calduch for RepRapBCN SIGMA 12/2014
 void myGenieEventHandler(void) //Handler for the do.Events() function
 {
@@ -488,6 +491,71 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 				}
+				
+				//****Change Filament on pause****
+				else if (Event.reportObject.index == BUTTON_CHANGE_LEFT || Event.reportObject.index == BUTTON_CHANGE_RIGHT)
+				{
+					if (Event.reportObject.index == BUTTON_CHANGE_LEFT) //Left Nozzle
+					{
+						which_extruder=0;
+					}
+					else //Right Nozzle
+					{
+						which_extruder=1;
+					}
+					change_full_filament = true;
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+					
+					//*********Move the bed down and the extruders inside								
+					int feedrate;
+					
+					//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
+					current_position[X_AXIS]+=25;
+					feedrate=homing_feedrate[X_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+					
+					st_synchronize();
+					//current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
+					
+					current_position[X_AXIS]=extruder_offset[X_AXIS][1];
+					Serial.println(current_position[X_AXIS]);
+					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+					current_position[X_AXIS]-=25;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+					st_synchronize();
+					flag_filament_home=true;
+					
+					
+					current_position[Y_AXIS]=10;
+					feedrate=homing_feedrate[Y_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					st_synchronize();
+					
+					current_position[Z_AXIS]=Z_MAX_POS-5;
+					feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*4/60, active_extruder); //check speed				
+					/****************************************************/
+					filament_mode = 'R';
+					//HEATTING
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+					Serial.println("REMOVING");
+					genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);	
+					is_changing_filament=true; //We are changing filament
+					
+					//Removing...
+					current_position[E_AXIS] = current_position[E_AXIS]-(BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at low feedrate
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+				}
+				
+				//********************************
 				
 				//*****Printing Settings*****
 				#pragma region Printing Settings
@@ -1111,6 +1179,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
 						setTargetHotend(INSERT_FIL_TEMP,which_extruder);
+
 						
 					}
 					else if (filament_mode=='R'){		
@@ -1134,36 +1203,68 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_INSERT )
 				{// We should have already checked if filament is inserted
-					if (filament_mode =='I')
-					{ //Inserting...
-						Serial.print("Inserting :   ");
-						current_position[E_AXIS] += 20;//Extra extrusion at low feedrate
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
-						current_position[E_AXIS] += (BOWDEN_LENGTH-300);
-						Serial.println(current_position[E_AXIS]);
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
-						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
+					if (!change_full_filament){
+						if (filament_mode =='I'){ 
+							//Inserting...
+							Serial.print("Inserting :   ");
+							current_position[E_AXIS] += 20;//Extra extrusion at low feedrate
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
+							current_position[E_AXIS] += (BOWDEN_LENGTH-300);
+							Serial.println(current_position[E_AXIS]);
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
+							current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						st_synchronize();
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							st_synchronize();
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
 						
-					}else if (filament_mode =='R')
-					{ //Removing...
-						current_position[E_AXIS] = current_position[E_AXIS]-(BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at low feedrate
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
+						}else {//Removing...
+							current_position[E_AXIS] = current_position[E_AXIS]-(BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at low feedrate
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						st_synchronize();
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							st_synchronize();
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						}
 					}
+					else{
+						if (filament_mode =='R'){
+							//Removing...
+							current_position[E_AXIS] = current_position[E_AXIS]-(BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at low feedrate
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
+								
+							//Heating to insert
+							filament_mode = 'I';
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							st_synchronize();
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+							genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+							setTargetHotend(INSERT_FIL_TEMP,which_extruder);
+						}
+						else{
+							Serial.print("Inserting :   ");
+							current_position[E_AXIS] += 20;//Extra extrusion at low feedrate
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
+							current_position[E_AXIS] += (BOWDEN_LENGTH-300);
+							Serial.println(current_position[E_AXIS]);
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
+							current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
+								
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							st_synchronize();
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
+						}
+					}
+				}
+					
 					
 					//We prefer to maintain temp after changing filament
 					//setTargetHotend(0,which_extruder);
 					//put_info_text("Filament DONE");
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
-				}
+				//}
 				#pragma endregion Insert_Remove_Fil
 				
 				
@@ -1171,7 +1272,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region AdjustFilament
 				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
 				{
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					if(!change_full_filament) genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					else genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ADJUST_ZUp)
