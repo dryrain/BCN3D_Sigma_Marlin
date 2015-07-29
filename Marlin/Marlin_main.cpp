@@ -767,12 +767,20 @@ void setup()
 
 
 	if (quick_guide) {
-		Serial.println("Welcome by first time to SIGMA");		
-		enquecommand_P(PSTR("M500"));
+		Serial.println("Quick guide true");		
 		
-		//call new screen, check the quick_guide bool will helps to differenciate between normal use or quick guide use
+		
+		//call new screen, check the quick_guide bool will helps to differentiate between normal use or quick guide use
 		quick_guide =false; 
+		enquecommand_P(PSTR("M500"));
 	}
+	/*else{
+		Serial.println("Quick guide false");
+		//quick_guide =true;
+		enquecommand_P(PSTR("M502"));	
+		enquecommand_P(PSTR("M500"));
+	}*/
+	
 }
 
 
