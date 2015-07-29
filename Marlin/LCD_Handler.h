@@ -525,8 +525,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					current_position[X_AXIS]-=25;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 					st_synchronize();
-					flag_filament_home=true;
 					
+					
+					current_position[Z_AXIS]=Z_MAX_POS-5;
+					feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*4/60, active_extruder); //check speed
+					st_synchronize();
 					
 					current_position[Y_AXIS]=10;
 					feedrate=homing_feedrate[Y_AXIS];
@@ -1140,8 +1144,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 					//*********Move the bed down and the extruders inside
-					if (!home_made) home_axis_from_code();
-					
+					if (!home_made) home_axis_from_code();					
 					int feedrate;
 					if (!flag_filament_home){
 						//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
@@ -2657,6 +2660,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == FORM_MAIN_SCREEN)
 				{
+					white_led =false;
 				surfing_utilities=false;
 				Serial.println("Surfing 0");
 				}

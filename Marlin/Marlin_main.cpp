@@ -250,7 +250,7 @@ void SD_firstPrint();
 
 //int language = 0;
 //bool quick_guide = true;	
-
+bool white_led = false;
 bool home_made = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -1122,6 +1122,7 @@ void get_command()
 
 	static bool stop_buffering=false;
 	if(buflen==0) stop_buffering=false;
+	
 
 	while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 		int16_t n=card.get();
@@ -1133,6 +1134,8 @@ void get_command()
 		serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
 		{
 			if(card.eof()){
+				//White LED
+				white_led = true;
 				SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
 				stoptime=millis();
 				char time[30];
@@ -1148,8 +1151,7 @@ void get_command()
 				card.checkautostart(true);
 
 			}
-			if(serial_char=='#')
-			stop_buffering=true;
+			if(serial_char=='#') stop_buffering=true;
 
 			if(!serial_count)
 			{
@@ -6289,7 +6291,15 @@ void process_commands()
 								max_temp = max(max_temp, degTargetBed());
 								max_temp = max(max_temp, degBed());
 							#endif*/
-							if((max_temp < 150.0)) {
+							if(white_led){
+								digitalWrite(STAT_LED_RED, 1);
+								digitalWrite(STAT_LED_BLUE, 1);
+								digitalWrite(STAT_LED_GREEN, 1);
+								red_led = true;
+								blue_led = true;
+								green_led = true;
+							}
+							if((max_temp < 150.0) && bool (white_led = false)) {
 								digitalWrite(STAT_LED_RED, 0);
 								digitalWrite(STAT_LED_BLUE, 0);
 								digitalWrite(STAT_LED_GREEN, 1);
@@ -6297,7 +6307,7 @@ void process_commands()
 								blue_led = false;
 								green_led = true;
 							}
-							else if((max_temp < 210.0)) {
+							else if((max_temp < 210.0)&& bool (white_led = false)) {
 								digitalWrite(STAT_LED_RED, 0);
 								digitalWrite(STAT_LED_BLUE, 1);
 								digitalWrite(STAT_LED_GREEN, 0);
