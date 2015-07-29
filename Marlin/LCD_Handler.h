@@ -543,16 +543,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println("REMOVING");
 					genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
-					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);	
+					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);	//When the temperature will be the correct, show the press to remove screen
 					is_changing_filament=true; //We are changing filament
 					
+					/*
 					//Removing...
 					current_position[E_AXIS] = current_position[E_AXIS]-(BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at low feedrate
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);*/
 				}
 				
 				//********************************
@@ -1243,6 +1244,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend(INSERT_FIL_TEMP,which_extruder);
 						}
 						else{
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							Serial.print("Inserting :   ");
 							current_position[E_AXIS] += 20;//Extra extrusion at low feedrate
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
@@ -1252,7 +1254,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 								
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							
 							st_synchronize();
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
 						}
@@ -1273,7 +1275,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
 				{
 					if(!change_full_filament) genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-					else genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					else {
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+						change_full_filament = false;
+					}
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ADJUST_ZUp)

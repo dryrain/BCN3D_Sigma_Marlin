@@ -1219,14 +1219,15 @@
   #if MOTHERBOARD == 68
     #define BEEPER 33
   #endif
-
+/*
   #ifdef TEMP_STAT_LEDS
-    #if MOTHERBOARD == 67
-      #define STAT_LED_RED       6
-      #define STAT_LED_BLUE     11
+    #if MOTHERBOARD == 15
+	#define STAT_LED_GREEN		11
+	#define STAT_LED_RED		12
+	#define STAT_LED_BLUE		13 
     #endif
   #endif
-
+*/
   #ifdef ULTRA_LCD
 
     #ifdef NEWPANEL

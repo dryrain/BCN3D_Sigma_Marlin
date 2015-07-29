@@ -661,6 +661,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_SIGMA_HOME
 #define Z_SIGMA_AUTOLEVEL
 
+//For LEDS
+#define STAT_LED_GREEN		11
+#define STAT_LED_RED		12
+#define STAT_LED_BLUE		13
 
 #ifdef Z_SIGMA_HOME
 	#define Z_SIGMA_HOME_X_POINT 55.5
@@ -1009,7 +1013,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Temperature status LEDs that display the hotend and bet temperature.
 // If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.
 // Otherwise the RED led is on. There is 1C hysteresis.
-//#define TEMP_STAT_LEDS
+#define TEMP_STAT_LEDS
 
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not ass annoying as with the hardware PWM. On the other hand, if this frequency
