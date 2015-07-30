@@ -249,7 +249,7 @@ void SD_firstPrint();
 
 
 //int language = 0;
-//bool quick_guide = true;	
+bool quick_guide = true;	
 bool white_led = false;
 bool home_made = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
@@ -766,9 +766,16 @@ void setup()
 	#endif
 
 
-	/*if (quick_guide) {
+	if (quick_guide) {
 		Serial.println("Welcome by first time to SIGMA");
 		quick_guide =false;
+		enquecommand_P(PSTR("M500"));
+		//call form quick guide
+	}
+	//RESET FUNCTION
+	/*else{
+		Serial.println("RESET VALUES");
+		enquecommand_P(PSTR("M502"));
 		enquecommand_P(PSTR("M500"));
 	}*/
 }
